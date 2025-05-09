@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTB RATE CHECKER</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-cyan-500 text-gray-300 overflow-x-hidden">
+    
+
+    <nav class="p-3 bg-cyan-700">
+        <h1 class="text-4xl lg:text-6xl font-semibold text-center ">EXCHANGE RATE</h1>
+    </nav>
+
+    <img src="img/images.png" alt="img" class="w-full"> <br><br>
+
+    <div><h1 class="text-4xl lg:text-5xl font-semibold text-center text-gray-600">From <em>USD</em> to your selected currency</h1></div><br> <br>
+
+    <form class="p-1">
+        <input class="p-3 lg:p-5 w-[265px] lg:w-[1420px] text-black" type="number" id="amount">
+        <select class="bg-cyan-700 text-gray-200 p-3 lg:p-5" id="currency"></select><br>
+        <input class="bg-cyan-800 p-3 lg:p-5 w-full mt-1 lg:mt-0 lg:w-[1470px] relative lg:left-5 hover:scale-105 transition ease-in" type="button" value="Check Rate" id="check">
+    </form><br>
+
+    <div id="result">
+        <div id="dollar" class="text-black"></div>
+    </div>
+
+   
+
+    <script>
+            let btn = document.querySelector("#check");
+
+                btn.addEventListener("click", (e) => {
+                    e.preventDefault();
+
+                    let amount = parseFloat(document.getElementById("amount").value);
+                    let selectedCurrency = document.getElementById("currency").value;
+
+                    if (isNaN(amount) || amount <= 0) {
+                        alert("Please enter a valid amount.");
+                        return;
+                    }
+
+                    fetch("https://open.er-api.com/v6/latest/USD")
+                        .then((response) => response.json())
+                        .then((data) => {
+                            const rate = data.rates[selectedCurrency];
+                            if (!rate) {
+                                document.getElementById("dollar").innerHTML = `<p class="text-red-500">Currency not available.</p>`;
+                                return;
+                            }
+
+                            const converted = (rate * amount).toFixed(2);
+                            document.getElementById("dollar").innerHTML = `
+                                <div class="bg-cyan-900 h-[300px] w-full p-3 text-white">
+                                    <h1 class="text-center text-green-500 font-medium text-3xl lg:text-4xl">Current Rate</h1><br>
+                                    <span class="lg:text-3xl">Dollars: ${amount}</span>
+                                    <br><br><br>
+                                    <span class="lg:text-3xl">To ${selectedCurrency}: ${converted}</span>
+                                </div>`;
+                        })
+                        .catch((error) => {
+                            console.error("Error fetching rates:", error);
+                            document.getElementById("dollar").innerHTML = `<p class="text-red-500">Failed to fetch exchange rate.</p>`;
+                        });
+                                    });
+
+                    fetch("https://open.er-api.com/v6/latest/USD")
+                        .then((response) => response.json())
+                        .then((data) => {
+                            let currencies = Object.keys(data.rates);
+                            currencies.forEach((currency) => {
+                                let option = document.createElement('option');
+                                option.value = currency;
+                                option.innerText = currency;
+                                document.querySelector('#currency').appendChild(option);
+                            });
+                        });
+
+    </script>
+
+</body>
+</html>
